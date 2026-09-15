@@ -1,0 +1,14 @@
+---
+description: 项目宪法：Spec 优先、合规发帖、中文沟通、禁止擅自推送
+alwaysApply: true
+---
+
+# 项目宪法
+
+- 与用户沟通使用 **简体中文**。
+- 任何功能改动：先读并更新 `specs/`，再改代码。入口见 `AGENTS.md`。
+- **禁止** Cookie 抓包、逆向签名、非官方模拟登录发帖；只走官方或用户指定的合规 Publisher。
+- **禁止** 擅自执行 `git commit`、`git push`、修改 git config；仅用户明确要求时执行。
+- **禁止** 提交或打印密钥、token、Cookie、`.env` 内容。
+- Phase 1 仅工作流基建；未进入 Phase 2 前不要创建 Next.js 业务应用。
+- 保持改动最小、与 Spec 一致；不主动写用户未要求的 Markdown 文档。

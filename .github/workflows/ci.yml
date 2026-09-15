@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  workflow-guards:
+    name: Spec & secret guards
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Required Spec files exist
+        run: |
+          set -euo pipefail
+          required=(
+            AGENTS.md
+            specs/000-overview.md
+            specs/001-content-pipeline.md
+            specs/002-domains.md
+            specs/003-xhs-preview-ui.md
+            specs/004-analytics-virality.md
+            specs/005-publisher-adapter.md
+            specs/006-tech-stack.md
+            .cursor/hooks.json
+            .cursor/rules/project-constitution.mdc
+          )
+          for f in "${required[@]}"; do
+            if [[ ! -f "$f" ]]; then
+              echo "Missing required file: $f"
+              exit 1
+            fi
+            echo "OK $f"
+          done
+
+      - name: Block committed secrets
+        run: |
+          set -euo pipefail
+          # Fail if tracked files look like secrets
+          if git ls-files | grep -E '(^|/)\.env($|\.)|(^|/)credentials\.json$|\.pem$|\.key$'; then
+            echo "Secret-like tracked files found:"
+            git ls-files | grep -E '(^|/)\.env($|\.)|(^|/)credentials\.json$|\.pem$|\.key$' || true
+            exit 1
+          fi
+          # Fail if common secret assignments appear in tracked text (heuristic)
+          if git grep -nE '(API_SECRET|APP_SECRET|ACCESS_TOKEN|REFRESH_TOKEN|BEGIN (RSA |OPENSSH )?PRIVATE KEY)' -- \
+            ':!*.md' ':!.github/**' ':!.cursor/**' 2>/dev/null; then
+            echo "Possible secret material in tracked non-doc files"
+            exit 1
+          fi
+          echo "No secret-like tracked files detected"
+
+  # Placeholder: enable when Phase 2 app exists
+  # lint-typecheck:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: pnpm/action-setup@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 20
+  #         cache: pnpm
+  #     - run: pnpm install --frozen-lockfile
+  #     - run: pnpm lint
+  #     - run: pnpm typecheck

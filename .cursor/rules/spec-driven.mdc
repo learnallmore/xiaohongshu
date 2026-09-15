@@ -1,0 +1,20 @@
+---
+description: Spec 驱动开发：功能变更必须同步 specs
+globs: "**/*.{ts,tsx,js,jsx,sql,prisma}"
+alwaysApply: false
+---
+
+# Spec 驱动
+
+改业务代码前确认对应 Spec：
+
+| 改动类型 | Spec |
+|----------|------|
+| 候选生成 / 状态机 | `specs/001-content-pipeline.md` |
+| 领域 / 小众标准 | `specs/002-domains.md` |
+| 预览页 UI | `specs/003-xhs-preview-ui.md` |
+| 指标 / 爆款 | `specs/004-analytics-virality.md` |
+| 发布适配器 | `specs/005-publisher-adapter.md` |
+| 依赖与目录 | `specs/006-tech-stack.md` |
+
+若 Spec 与实现冲突，**先改 Spec 再改代码**，并在回复中说明 Spec 变更点。
