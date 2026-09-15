@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>棱镜 · 笔记审阅</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/prism.css" />
+  </head>
+  <body>
+    {% if count == 0 %}
+    <div class="empty">今日暂无候选。</div>
+    {% else %}
+    <div class="shell" id="app">
+      <header class="topbar">
+        <div>
+          <span class="brand">棱镜</span>
+          <span class="brand-hint">今日 · {{ count }} 候选</span>
+        </div>
+        <span class="nav-quiet">已发布（Phase 2 占位）</span>
+      </header>
+      <div class="main">
+        <div class="preview-pane">
+          <div id="preview" class="preview-anim"></div>
+          <div class="thumbs" id="thumbs"></div>
+        </div>
+        <aside class="side">
+          <div class="ai-wrap">
+            <button type="button" class="ai-toggle" id="aiToggle">展开 AI 备注</button>
+            <div class="ai-body" id="aiBody"></div>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-primary" id="btnPublish" aria-label="通过并立即发布">
+              通过并立即发布
+            </button>
+            <button type="button" class="btn-secondary" id="btnDraft" aria-label="存草稿">存草稿</button>
+            <button type="button" class="btn-danger" id="btnReject" aria-label="拒绝">拒绝</button>
+            <div class="flash" id="flash" role="status"></div>
+            <div class="nav-row">
+              <button type="button" class="nav-btn" id="btnPrev" aria-label="上一条">← 上一条</button>
+              <button type="button" class="nav-btn" id="btnNext" aria-label="下一条">下一条 →</button>
+            </div>
+            <p class="index-label" id="sourceLine"></p>
+          </div>
+        </aside>
+      </div>
+    </div>
+    <script>
+      const posts = {{ posts_json | tojson }};
+      const accountName = {{ account_name | tojson }};
+      let cursor = 0;
+      let imgIndex = 0;
+      let busy = false;
+      let startX = null;
+
+      const preview = document.getElementById("preview");
+      const thumbs = document.getElementById("thumbs");
+      const aiToggle = document.getElementById("aiToggle");
+      const aiBody = document.getElementById("aiBody");
+      const flashEl = document.getElementById("flash");
+      const sourceLine = document.getElementById("sourceLine");
+
+      function current() {
+        return posts[cursor];
+      }
+
+      function sortedImages(post) {
+        return [...post.images].sort((a, b) => a.sort_order - b.sort_order);
+      }
+
+      function render() {
+        const post = current();
+        const images = sortedImages(post);
+        imgIndex = Math.min(imgIndex, Math.max(0, images.length - 1));
+
+        preview.classList.remove("preview-anim");
+        void preview.offsetWidth;
+        preview.classList.add("preview-anim");
+
+        const slides = images
+          .map(
+            (img) =>
+              `<div class="slide"><img src="${img.url}" alt="" width="${img.width}" height="${img.height}" /></div>`
+          )
+          .join("");
+        const dots = images
+          .map(
+            (_, i) =>
+              `<button type="button" class="dot ${i === imgIndex ? "active" : ""}" data-dot="${i}" aria-label="第 ${i + 1} 张图"></button>`
+          )
+          .join("");
+
+        preview.innerHTML = `
+          <div class="phone">
+            <div class="screen">
+              <div class="author-row">
+                <div class="avatar" aria-hidden="true"></div>
+                <span class="author-name">${accountName}</span>
+              </div>
+              <div class="carousel" id="carousel">
+                <div class="track" id="track" style="transform: translateX(-${imgIndex * 100}%)">${slides}</div>
+                <div class="dots">${dots}</div>
+              </div>
+              <div class="note-body">
+                <h2 class="note-title">${escapeHtml(post.title)}</h2>
+                <p class="note-text">${escapeHtml(post.body)}</p>
+                <div class="tags">${post.tags.map((t) => `<span class="tag">#${escapeHtml(t)}</span>`).join("")}</div>
+              </div>
+            </div>
+          </div>`;
+
+        thumbs.innerHTML =
+          posts
+            .map((p, i) => {
+              const cover =
+                sortedImages(p).find((x) => x.sort_order === p.cover_index) ||
+                sortedImages(p)[0];
+              return `<button type="button" class="thumb ${i === cursor ? "active" : ""}" data-i="${i}" aria-label="切换到第 ${i + 1} 条">
+                <img src="${cover ? cover.url : ""}" alt="" />
+              </button>`;
+            })
+            .join("") + `<span class="index-label">${cursor + 1}/${posts.length}</span>`;
+
+        aiBody.innerHTML = `<p>领域：${escapeHtml(post.domain_label || post.domain)} · nicheScore ${post.niche_score} · 状态 ${post.status}</p>
+          <p>${escapeHtml(post.rationale || "（无 rationale）")}</p>`;
+
+        const cover =
+          images.find((x) => x.sort_order === post.cover_index) || images[0];
+        sourceLine.textContent = cover
+          ? `图源：${cover.source} · ${cover.license}`
+          : "";
+
+        document.getElementById("btnPrev").disabled = cursor <= 0;
+        document.getElementById("btnNext").disabled = cursor >= posts.length - 1;
+
+        bindCarousel();
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function bindCarousel() {
+        const carousel = document.getElementById("carousel");
+        if (!carousel) return;
+        carousel.onpointerdown = (e) => {
+          startX = e.clientX;
+        };
+        carousel.onpointerup = (e) => {
+          if (startX == null) return;
+          const dx = e.clientX - startX;
+          startX = null;
+          const images = sortedImages(current());
+          if (dx < -40) imgIndex = Math.min(images.length - 1, imgIndex + 1);
+          if (dx > 40) imgIndex = Math.max(0, imgIndex - 1);
+          const track = document.getElementById("track");
+          if (track) track.style.transform = `translateX(-${imgIndex * 100}%)`;
+          carousel.querySelectorAll(".dot").forEach((d, i) => {
+            d.classList.toggle("active", i === imgIndex);
+          });
+        };
+        carousel.querySelectorAll(".dot").forEach((d) => {
+          d.onclick = () => {
+            imgIndex = Number(d.dataset.dot);
+            const track = document.getElementById("track");
+            if (track) track.style.transform = `translateX(-${imgIndex * 100}%)`;
+            carousel.querySelectorAll(".dot").forEach((x, i) => {
+              x.classList.toggle("active", i === imgIndex);
+            });
+          };
+        });
+      }
+
+      thumbs.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-i]");
+        if (!btn) return;
+        cursor = Number(btn.dataset.i);
+        imgIndex = 0;
+        render();
+      });
+
+      aiToggle.addEventListener("click", () => {
+        const open = aiBody.classList.toggle("open");
+        aiToggle.textContent = open ? "收起 AI 备注" : "展开 AI 备注";
+      });
+
+      async function act(action) {
+        if (busy) return;
+        busy = true;
+        setButtons(true);
+        try {
+          const post = current();
+          const res = await fetch(`/api/review/${post.id}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action }),
+          });
+          if (!res.ok) {
+            flashEl.textContent = "操作失败";
+            return;
+          }
+          const updated = await res.json();
+          posts[cursor] = updated;
+          const label =
+            action === "publish"
+              ? "已标记发布"
+              : action === "draft"
+                ? "已存草稿"
+                : "已拒绝";
+          flashEl.textContent = label;
+          render();
+          setTimeout(() => {
+            flashEl.textContent = "";
+          }, 1200);
+        } finally {
+          busy = false;
+          setButtons(false);
+        }
+      }
+
+      function setButtons(disabled) {
+        ["btnPublish", "btnDraft", "btnReject"].forEach((id) => {
+          document.getElementById(id).disabled = disabled;
+        });
+      }
+
+      document.getElementById("btnPublish").onclick = () => act("publish");
+      document.getElementById("btnDraft").onclick = () => act("draft");
+      document.getElementById("btnReject").onclick = () => act("reject");
+      document.getElementById("btnPrev").onclick = () => {
+        if (cursor > 0) {
+          cursor -= 1;
+          imgIndex = 0;
+          render();
+        }
+      };
+      document.getElementById("btnNext").onclick = () => {
+        if (cursor < posts.length - 1) {
+          cursor += 1;
+          imgIndex = 0;
+          render();
+        }
+      };
+
+      render();
+    </script>
+    {% endif %}
+  </body>
+</html>

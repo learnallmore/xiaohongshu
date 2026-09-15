@@ -12,7 +12,7 @@ alwaysApply: false
 |----------|------|
 | 候选生成 / 状态机 | `specs/001-content-pipeline.md` |
 | 领域 / 小众标准 | `specs/002-domains.md` |
-| 预览页 UI | `specs/003-xhs-preview-ui.md` |
+| 预览页 UI | `specs/003-xhs-preview-ui.md` + `specs/007-frontend-design.md` |
 | 指标 / 爆款 | `specs/004-analytics-virality.md` |
 | 发布适配器 | `specs/005-publisher-adapter.md` |
 | 依赖与目录 | `specs/006-tech-stack.md` |

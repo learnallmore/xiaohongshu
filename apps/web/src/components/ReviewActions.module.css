@@ -1,0 +1,68 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.primary {
+  appearance: none;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  background: var(--ok);
+  color: #0f1210;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.secondary {
+  appearance: none;
+  border: 1px solid rgba(232, 228, 220, 0.35);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.9rem;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.danger {
+  appearance: none;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.9rem;
+  background: transparent;
+  color: var(--danger);
+  cursor: pointer;
+}
+
+.navRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.navBtn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  padding: 0.4rem 0;
+}
+
+.navBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.flash {
+  font-size: 0.85rem;
+  color: var(--accent);
+  min-height: 1.2em;
+}

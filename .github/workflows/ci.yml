@@ -25,8 +25,14 @@ jobs:
             specs/004-analytics-virality.md
             specs/005-publisher-adapter.md
             specs/006-tech-stack.md
+            specs/007-frontend-design.md
+            apps/api/requirements.txt
+            apps/api/app/main.py
             .cursor/hooks.json
             .cursor/rules/project-constitution.mdc
+            .cursor/rules/mandatory-self-cr.mdc
+            .cursor/skills/auto-code-review/SKILL.md
+            .cursor/skills/alibaba-java-coding-guidelines/SKILL.md
           )
           for f in "${required[@]}"; do
             if [[ ! -f "$f" ]]; then

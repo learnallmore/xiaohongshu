@@ -1,0 +1,11 @@
+---
+description: 每次改码后必须执行自动 CR Skill
+alwaysApply: true
+---
+
+# 强制自审 CR
+
+- 本轮只要改了代码、配置、CI、Schema 或 Spec，收工前必须执行 `.cursor/skills/auto-code-review/SKILL.md`。
+- 输出必须包含「CR 结论 / 阻塞 / 建议 / Spec 对齐 / 安全」五段；阻塞项未清零不得宣称完成。
+- **不要**自动 `git push`；push 仅用户明确授权后执行。
+- Java 变更必须叠加 `.cursor/skills/alibaba-java-coding-guidelines/SKILL.md`。

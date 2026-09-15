@@ -1,0 +1,13 @@
+---
+description: Java 文件必须遵守阿里巴巴 Java 开发手册 Skill
+globs: "**/*.java"
+alwaysApply: false
+---
+
+# Java 规范
+
+编辑或审查任何 `*.java` 时：
+
+1. 读取并遵循 `.cursor/skills/alibaba-java-coding-guidelines/SKILL.md`
+2. CR 时用 `.cursor/skills/auto-code-review/SKILL.md`，强制项列入阻塞
+3. 业务后端主栈为 Spring Boot（`specs/006-tech-stack.md`）；运营台为 FastAPI，勿把领域逻辑堆进 FastAPI

@@ -17,14 +17,16 @@ description: >-
 
 - `specs/002-domains.md`
 - `specs/001-content-pipeline.md`
+- **`.cursor/skills/authentic-xhs-voice/SKILL.md`（真实可追溯 + 去 AI 味，阻塞级）**
 
 ## 策展清单
 
 1. 领域是否落在四大主领域或已批准的扩展？
-2. 熟悉度惩罚：是否网红机位/下沉歌手无新角度？
-3. 真实可核验线索（地点、风格流派、厂牌/制作人）是否站得住？
-4. 图文是否服务氛围而非资讯堆砌？
-5. 输出候选时包含：`title`、`body`、`tags`、`images` 意图、`rationale`、`nicheScore`（0–100）。
+2. **城市景观是否中国可指认？** 其它领域是否可追溯？
+3. **正文是否写明图源给读者看？**（仅元数据不够）
+4. 熟悉度惩罚：网红机位/下沉歌手无新角度？
+5. 文案是否通过 `authentic-xhs-voice` 自检（无升华腔、无假经历）？
+6. 输出：`title`、`body`、`tags`、`images`（含 source/license）、`rationale`、`nicheScore`。
 
 ## 输出格式
 

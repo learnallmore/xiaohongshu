@@ -1,0 +1,93 @@
+# Prisma schema — MySQL（设计阶段；迁库待环境安装阶段）
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum PostStatus {
+  pending
+  approved
+  rejected
+  draft
+  published
+}
+
+enum DomainKind {
+  cityscape
+  interior
+  music
+  polar
+  extended
+}
+
+model CandidatePost {
+  id             String     @id @default(cuid())
+  dateBatch      DateTime   @db.Date
+  domain         DomainKind
+  domainLabel    String?    @db.VarChar(128)
+  status         PostStatus @default(pending)
+  title          String     @db.VarChar(200)
+  body           String     @db.Text
+  /// JSON string array, e.g. ["标签1","标签2"]
+  tags           Json
+  coverIndex     Int        @default(0)
+  rationale      String?    @db.Text
+  nicheScore     Int        @default(0)
+  externalNoteId String?    @db.VarChar(64)
+  rejectReason   String?    @db.VarChar(500)
+  createdAt      DateTime   @default(now())
+  reviewedAt     DateTime?
+  publishedAt    DateTime?
+  images         PostImage[]
+  metrics        MetricSnapshot[]
+  virality       ViralityAssessment?
+
+  @@index([dateBatch, status])
+}
+
+model PostImage {
+  id        String        @id @default(cuid())
+  postId    String
+  post      CandidatePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  sortOrder Int
+  url       String        @db.VarChar(1024)
+  width     Int
+  height    Int
+  mimeType  String        @default("image/jpeg") @db.VarChar(64)
+  source    String        @db.VarChar(255)
+  license   String        @db.VarChar(128)
+
+  @@index([postId, sortOrder])
+}
+
+model MetricSnapshot {
+  id             String        @id @default(cuid())
+  postId         String
+  post           CandidatePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  externalNoteId String        @db.VarChar(64)
+  views          Int           @default(0)
+  likes          Int           @default(0)
+  collects       Int           @default(0)
+  comments       Int           @default(0)
+  shares         Int?
+  capturedAt     DateTime      @default(now())
+
+  @@index([postId, capturedAt])
+  @@index([externalNoteId, capturedAt])
+}
+
+model ViralityAssessment {
+  id           String        @id @default(cuid())
+  postId       String        @unique
+  post         CandidatePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  score        Int
+  label        String        @db.VarChar(32)
+  features     Json?
+  modelVersion String        @default("v0") @db.VarChar(32)
+  assessedAt   DateTime      @default(now())
+}

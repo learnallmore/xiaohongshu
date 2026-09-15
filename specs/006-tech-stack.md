@@ -1,40 +1,44 @@
 # 006 — 技术栈与工程约定
 
-## 选定栈（Phase 2 起落地）
+## 选定栈（当前）
 
 | 层 | 选型 |
 |----|------|
-| Web | Next.js（App Router）+ TypeScript |
-| UI | React + CSS Modules 或 Tailwind（实现时二选一并写死） |
-| DB | PostgreSQL |
-| ORM | Prisma 或 Drizzle（实现时二选一并写死） |
-| 任务 | 服务端 Cron（如 `node-cron` / 平台 Cron）或队列 Worker |
-| AI | 通过服务端调用 LLM API（密钥仅环境变量） |
-| 包管理 | pnpm |
+| 应用 | **FastAPI 单体**（Python）：页面 + API + 业务 |
+| UI | Jinja2 模板 + 静态 CSS（见 `007-frontend-design.md`） |
+| DB | **MySQL**（本机 TablePlus：`127.0.0.1:3306` / `root` / 空密码） |
+| ORM | SQLAlchemy + PyMySQL |
+| 包管理 | `apps/api` 内 venv + pip |
+| 运行 | `uvicorn` → `http://127.0.0.1:8000` |
 
-## 目录预告（尚未创建应用代码）
+## 职责
 
 ```text
-apps/web/           # Next.js 应用（Phase 2）
-packages/…          # 若需 monorepo 再拆
-specs/              # 本目录（已存在）
-.cursor/            # Rules / Skills / Hooks
-.github/workflows/  # CI
+浏览器 ──► FastAPI（:8000）──► MySQL（库 xiaohongshumoney）
 ```
 
-Phase 1 **不**创建 `apps/web`。
+## 目录
+
+```text
+apps/api/          # 唯一运行入口（当前）
+apps/web/          # 废弃：原 Next.js 实验，不再维护
+specs/
+.cursor/
+```
 
 ## 环境
 
-- Node.js LTS（20+）
-- Docker Compose 可选提供本地 Postgres（Phase 2）
-
-## 质量门禁
-
-- TypeScript strict
-- CI：密钥扫描占位、Spec 存在性检查；应用出现后启用 lint / typecheck / test
-- Agent 收工 Hook：变更摘要 + Spec 一致性清单
+- 本地 `.env`：`DATABASE_URL=mysql+pymysql://root@127.0.0.1:3306/xiaohongshumoney`（勿提交）
+- 建库：`CREATE DATABASE IF NOT EXISTS xiaohongshumoney`
+- 本阶段用 SQLAlchemy `create_all`，暂不引入 Alembic
 
 ## 废弃
 
-- 原 IntelliJ Java `Main.java` 空壳已移除，不再作为技术方向。
+- Next.js / Prisma 运行路径
+- Docker Compose / PostgreSQL
+- Spring Boot（若文档曾提及，以本文为准：不做）
+
+## 质量门禁
+
+- 每次改码强制 `auto-code-review`
+- 禁止自动 push；密钥不上库

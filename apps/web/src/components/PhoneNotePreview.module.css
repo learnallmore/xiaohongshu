@@ -1,0 +1,125 @@
+.phone {
+  width: min(390px, 100%);
+  background: var(--phone-frame);
+  border-radius: 28px;
+  padding: 10px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+}
+
+.screen {
+  background: var(--note-bg);
+  color: var(--note-ink);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: min(844px, 78vh);
+}
+
+.authorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.85rem;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c4a574, #6b8f71);
+  flex-shrink: 0;
+}
+
+.authorName {
+  font-family: var(--font-note-sans), sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #ddd;
+  touch-action: pan-y;
+}
+
+.track {
+  display: flex;
+  height: 100%;
+  transition: transform 220ms ease;
+}
+
+.slide {
+  flex: 0 0 100%;
+  height: 100%;
+  position: relative;
+}
+
+.slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+.dots {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.dotActive {
+  background: #fff;
+}
+
+.body {
+  padding: 0.85rem 0.95rem 1.1rem;
+  overflow-y: auto;
+  font-family: var(--font-note-sans), sans-serif;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-note-serif), serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.text {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.tag {
+  color: #555;
+}

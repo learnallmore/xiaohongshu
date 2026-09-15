@@ -64,6 +64,13 @@ interface PublisherAdapter {
 - 禁止未授权转载他人笔记原图原文。
 - 不实现、不文档化抓包发帖步骤。
 
+## 账号连接（当前搁置）
+
+- 如何把本机运营台绑到用户的小红书账号（OAuth / Device Grant / 合规第三方具体步骤）**暂不清楚则先不做**。
+- Phase 2–3：默认 `PUBLISHER_DRIVER=noop`；「通过并发布」只走干跑，UI 可提示「账号未绑定」。
+- 用户日后提供官方文档或指定第三方后，再实现 `OfficialXhsPublisher` / `ThirdPartyPublisher` 与鉴权存储。
+- Adapter 实现落在 **Spring Boot**（见 `006`）；契约语言无关，可用 Java interface 表达同等字段。
+
 ## 权限缺口处理
 
 若开放平台应用类型 **未开放个人创作者发笔记**：

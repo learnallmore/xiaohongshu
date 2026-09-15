@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!**/.env.example
 *.pem
 *.key
 credentials.json
@@ -9,18 +10,27 @@ credentials.json
 
 # Dependencies
 node_modules/
+apps/**/node_modules/
+apps/api/.venv/
+.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
 .pnp
 .pnp.js
 .yarn/install-state.gz
 
 # Build / Next.js
 .next/
+apps/**/.next/
 out/
 dist/
 build/
 coverage/
 *.tsbuildinfo
 next-env.d.ts
+!apps/web/next-env.d.ts
 
 # Media & local caches (future app)
 uploads/
