@@ -11,8 +11,6 @@ alwaysApply: true
 - **禁止自动推送**：不得擅自 `git push` / 创建远程并推送；仅当用户明确授权时才 push。
 - **禁止**擅自 `git commit` / 修改 git config；仅用户明确要求时执行。
 - **禁止擅自装环境**：不得擅自 `brew install`、装/启 Docker、`docker compose`、装 `gh`、系统级 `pip`/`mvn` 依赖安装、Flyway migrate 或连接真实数据库做迁移；仅当用户明确说进入「环境安装阶段」时才可执行。
-- **禁止** Cookie 抓包、逆向签名、非官方模拟登录发帖；只走官方或用户指定的合规 Publisher。
-- **禁止** 提交或打印密钥、token、Cookie、`.env` 内容。
 - 数据库选型为 **MySQL**（见 `specs/006-tech-stack.md`）；写码阶段用 Mock，不强制起库。
 - 栈：**FastAPI 运营台 + Spring Boot 后端 + 本机 MySQL**（见 `specs/006-tech-stack.md`）；仅本地部署。
 - 小红书账号连接未知则搁置；默认 Noop Publisher。
