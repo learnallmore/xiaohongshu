@@ -126,7 +126,8 @@
             })
             .join("") + `<span class="index-label">${cursor + 1}/${posts.length}</span>`;
 
-        aiBody.innerHTML = `<p>领域：${escapeHtml(post.domain_label || post.domain)} · nicheScore ${post.niche_score} · 状态 ${post.status}</p>
+        const tastePass = post.taste_pass ? "过线" : "未过线";
+        aiBody.innerHTML = `<p>领域：${escapeHtml(post.domain_label || post.domain)} · niche ${post.niche_score} · taste ${post.taste_score ?? "—"}（${tastePass}） · 状态 ${post.status}</p>
           <p>${escapeHtml(post.rationale || "（无 rationale）")}</p>`;
 
         const cover =

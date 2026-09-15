@@ -50,6 +50,14 @@ def review_action(
         raise HTTPException(status_code=404, detail="not found")
 
     if body.action == "publish":
+        if not post.taste_pass:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"taste_score {post.taste_score} 未达素材品味门槛，"
+                    "请改写后再发布"
+                ),
+            )
         post.status = "published"
     elif body.action == "draft":
         post.status = "draft"

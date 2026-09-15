@@ -26,7 +26,7 @@ description: >-
 3. **正文是否写明图源给读者看？**（仅元数据不够）
 4. 熟悉度惩罚：网红机位/下沉歌手无新角度？
 5. 文案是否通过 `authentic-xhs-voice` 自检（无升华腔、无假经历）？
-6. 输出：`title`、`body`、`tags`、`images`（含 source/license）、`rationale`、`nicheScore`。
+6. 输出：`title`、`body`、`tags`、`images`（含 source/license）、`rationale`、`nicheScore`、`tasteScore`（须过同领域素材中位线，见 `001`）。
 
 ## 输出格式
 

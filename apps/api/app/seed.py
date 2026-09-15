@@ -7,6 +7,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models import CandidatePost, PostImage
+from app.seed_materials import upsert_materials
+from app.services.taste_scorer import apply_taste_to_post
 
 # 文案与图源须符合 .cursor/skills/authentic-xhs-voice/SKILL.md
 SEED: list[dict] = [
@@ -172,7 +174,6 @@ def _upsert_seed(db: Session) -> None:
                     )
                 )
         else:
-            # refresh text/images on existing seed rows
             post.images.clear()
             for img in item["images"]:
                 post.images.append(
@@ -202,9 +203,19 @@ def _upsert_seed(db: Session) -> None:
 
     db.commit()
 
+    stmt = (
+        select(CandidatePost)
+        .where(CandidatePost.id.in_([x["id"] for x in SEED]))
+        .options(selectinload(CandidatePost.images))
+    )
+    for post in db.scalars(stmt).all():
+        apply_taste_to_post(db, post)
+    db.commit()
+
 
 def seed_if_empty(db: Session) -> None:
-    """启动时同步种子内容（可覆盖同 id），保证文案规范迭代能进库。"""
+    """启动时同步素材表 + 种子候选，并写入 taste_score。"""
+    upsert_materials(db)
     _upsert_seed(db)
 
 

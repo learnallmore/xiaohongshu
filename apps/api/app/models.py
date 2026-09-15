@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -22,6 +22,9 @@ class CandidatePost(Base):
     cover_index: Mapped[int] = mapped_column(Integer, default=0)
     rationale: Mapped[str | None] = mapped_column(Text, nullable=True)
     niche_score: Mapped[int] = mapped_column(Integer, default=0)
+    taste_score: Mapped[int] = mapped_column(Integer, default=0)
+    taste_pass: Mapped[bool] = mapped_column(Boolean, default=False)
+    taste_features_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     reject_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now()
@@ -51,3 +54,25 @@ class PostImage(Base):
     license: Mapped[str] = mapped_column(String(128))
 
     post: Mapped[CandidatePost] = relationship(back_populates="images")
+
+
+class ReferenceMaterial(Base):
+    """调研参照素材：只存结构/审美特征，禁止未授权原文原图。"""
+
+    __tablename__ = "reference_materials"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    domain: Mapped[str] = mapped_column(String(32), index=True)
+    keyword: Mapped[str] = mapped_column(String(128))
+    title_observed: Mapped[str] = mapped_column(String(300))
+    author_hint: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    likes_hint: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    structure_notes: Mapped[str] = mapped_column(Text)
+    taste_tags_json: Mapped[str] = mapped_column(Text)  # JSON array
+    quality_score: Mapped[int] = mapped_column(Integer, default=70)
+    source_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    license_ok: Mapped[bool] = mapped_column(Boolean, default=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    collected_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now()
+    )
