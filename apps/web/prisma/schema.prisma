@@ -21,7 +21,6 @@ enum DomainKind {
   cityscape
   interior
   music
-  polar
   extended
 }
 

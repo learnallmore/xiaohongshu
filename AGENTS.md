@@ -19,6 +19,7 @@
    - `authentic-xhs-voice`：真实可追溯素材 + 去 AI 味文案（生成/改帖必用）
    - `alibaba-java-coding-guidelines`：任何 Java 编写与审查
    - `content-curator` / `xhs-note-format` / `virality-review` / `publisher-checklist`
+   - **`daily-agent-generate`：飞书提醒后，指挥 Agent 生成今日 3 候选并落库**
 
 ## 硬性约束
 
@@ -27,8 +28,6 @@
 - **禁止自动推送**：不得擅自 `git push`；仅用户明确授权。
 - **禁止擅自装环境**：不得擅自 brew/Docker/`pip install`/`mvn` 装依赖/Flyway migrate；仅用户明确进入环境阶段。
 - **禁止**擅自 `git commit` / 改 git config；仅用户明确要求时执行。
-- **禁止** Cookie 抓包、逆向签名、非官方模拟登录发帖。
-- **禁止** 提交 `.env`、密钥、token、Cookie。
 - 功能变更必须先更新对应 `specs/*.md`，再改代码。
 
 ## 阶段路线图
@@ -37,7 +36,7 @@
 |------|------|
 | Phase 1 | Git 隔离、Specs、Rules、Skills、Hooks、CI、凭证清单 |
 | Phase 2（进行中） | FastAPI 单体 + MySQL 审阅预览（`apps/api`） |
-| Phase 3 | 每日 3 候选生成 + 审阅工作流 |
+| Phase 3 | 飞书日更提醒 + Cursor Agent 写稿落库（ingest）+ 拒绝硬删 |
 | Phase 4 | 真实 Publisher + 指标回流 + 爆款评分闭环 |
 
 ## 合并前检查

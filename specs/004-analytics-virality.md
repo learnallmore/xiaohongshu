@@ -24,7 +24,7 @@
 
 ## 与品味分的关系
 
-- **taste_score**（见 `001`）：发布前、对照 `ReferenceMaterial` 的结构/审美门槛。
+- **taste_score**（见 `001`）：发布前、对照真实素材库 `ReferenceMaterial` 的质量分布（P75）与特征对齐门槛。
 - **virality score**（本节）：发布后、对照账号自身互动基线。二者不可互相替代。
 
 ## 爆款潜力评分（逻辑草案）

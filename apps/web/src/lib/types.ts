@@ -2,7 +2,6 @@ export type DomainKind =
   | "cityscape"
   | "interior"
   | "music"
-  | "polar"
   | "extended";
 
 export type PostStatus =

@@ -1,7 +1,7 @@
 ---
 name: content-curator
 description: >-
-  小众审美内容策展：城市景观、室内设计、小众电子/爵士/R&B、极地风景。
+  小众审美内容策展：城市景观、室内设计、小众电子/爵士/R&B。
   在生成候选帖、扩展领域、评审 niche 度时使用。
 ---
 
@@ -21,19 +21,20 @@ description: >-
 
 ## 策展清单
 
-1. 领域是否落在四大主领域或已批准的扩展？
+1. 领域是否落在三大主领域（城市 / 室内 / 音乐）或已批准的扩展？**禁止 polar / 南极 / 极地题材。**
 2. **城市景观是否中国可指认？** 其它领域是否可追溯？
-3. **正文是否写明图源给读者看？**（仅元数据不够）
-4. 熟悉度惩罚：网红机位/下沉歌手无新角度？
-5. 文案是否通过 `authentic-xhs-voice` 自检（无升华腔、无假经历）？
-6. 输出：`title`、`body`、`tags`、`images`（含 source/license）、`rationale`、`nicheScore`、`tasteScore`（须过同领域素材中位线，见 `001`）。
+3. **情感是否正向或平？** 拒猎奇、惊悚、灾难消融等负向主导。
+4. **图源口径**：以 `authentic-xhs-voice` 为准（元数据为主，正文禁说明书腔）。
+5. 熟悉度惩罚：网红机位/下沉歌手无新角度？
+6. 文案是否通过 `authentic-xhs-voice` 自检（无升华腔、无假经历）？
+7. 输出：`title`、`body`、`tags`、`images`（含 source/license）、`rationale`、`nicheScore`、`tasteScore`（须过同领域素材品味线，见 `001`）。
 
 ## 输出格式
 
 对每条候选使用结构化块，便于后续入库：
 
 ```yaml
-domain: cityscape|interior|music|polar|extended:<name>
+domain: cityscape|interior|music|extended:<name>
 title: ...
 body: |
   ...

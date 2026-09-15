@@ -1,0 +1,21 @@
+# reusable CDP scrape snippet params: DOMAIN KEYWORD
+SCRAPE_JS = r'''
+(() => {
+  const DOMAIN = __DOMAIN__;
+  const KEYWORD = __KEYWORD__;
+  function parseLikes(s){if(!s)return null;s=String(s).trim();if(/万/.test(s))return Math.round(parseFloat(s)*10000);const n=parseInt(s.replace(/[^0-9]/g,''),10);return Number.isFinite(n)?n:null;}
+  const cards=[...document.querySelectorAll('section.note-item, section')];
+  const out=[]; const seen=new Set();
+  for(const card of cards){
+    const a=card.querySelector('a[href*="/explore/"]'); if(!a) continue;
+    const m=(a.href||'').match(/\/explore\/([a-f0-9]+)/); if(!m||seen.has(m[1])) continue; seen.add(m[1]);
+    let cover=null; for(const img of card.querySelectorAll('img')){const src=img.src||''; if(src.includes('http')){cover=src;break;}}
+    const lines=(card.innerText||'').split('\n').map(x=>x.trim()).filter(Boolean);
+    let title=lines[0]||''; let author=''; let likes=null;
+    for(let i=lines.length-1;i>=0;i--){if(/^[\d.]+\s*万?$|^\d+$/.test(lines[i])){likes=parseLikes(lines[i]);break;}}
+    for(let i=1;i<lines.length;i++){const L=lines[i]; if(/^[\d.]+\s*万?$/.test(L))continue; if(/(昨天|天前|小时前|分钟前|\d{2}-\d{2}|\d{4}-)/.test(L)&&L.length<20)continue; author=L; break;}
+    out.push({note_id:m[1], title, author_hint:author, likes_hint:likes, cover_url:cover, source_url:'https://www.xiaohongshu.com/explore/'+m[1], domain:DOMAIN, keyword:KEYWORD, body_excerpt:title+'（搜索卡片公开字段）'});
+  }
+  return JSON.stringify(out);
+})()
+'''

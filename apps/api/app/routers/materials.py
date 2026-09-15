@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.db import get_db
 from app.models import CandidatePost, ReferenceMaterial
 from app.schemas import MaterialIn, MaterialOut, candidate_to_out, material_to_out
+from app.services.material_gates import material_reject_reason
 from app.services.taste_scorer import apply_taste_to_post, domain_benchmark, rescore_all_candidates
 
 router = APIRouter(prefix="/api", tags=["materials-taste"])
@@ -33,21 +34,45 @@ def list_materials(
 
 @router.post("/materials", response_model=MaterialOut)
 def create_material(body: MaterialIn, db: Session = Depends(get_db)):
-    """人工/Agent 观察后入库；禁止塞未授权全文原图。"""
-    mid = body.id or f"mat-{uuid.uuid4().hex[:12]}"
+    """入库真实笔记公开元数据；license_ok 强制 false。"""
+    reject = material_reject_reason(
+        domain=body.domain,
+        title=body.title_observed,
+        body_excerpt=body.body_excerpt,
+        keyword=body.keyword,
+        notes=body.notes,
+    )
+    if reject:
+        raise HTTPException(status_code=400, detail=reject)
+    mid = body.id or (
+        f"xhs-{body.note_id}" if body.note_id else f"mat-{uuid.uuid4().hex[:12]}"
+    )
     row = db.get(ReferenceMaterial, mid)
     if row is None:
         row = ReferenceMaterial(id=mid)
         db.add(row)
     row.domain = body.domain
     row.keyword = body.keyword
+    row.note_id = body.note_id
     row.title_observed = body.title_observed
     row.author_hint = body.author_hint
     row.likes_hint = body.likes_hint
-    row.structure_notes = body.structure_notes
+    row.collects_hint = body.collects_hint
+    row.comments_hint = body.comments_hint
+    row.cover_url = body.cover_url
+    images = list(body.images or [])
+    if body.cover_url and body.cover_url not in images:
+        images = [body.cover_url] + images
+    row.images_json = json.dumps(images, ensure_ascii=False) if images else None
+    row.body_excerpt = body.body_excerpt
+    row.structure_notes = body.structure_notes or body.notes or (
+        f"真实笔记 {body.note_id or mid}"
+    )
     row.taste_tags_json = json.dumps(body.taste_tags, ensure_ascii=False)
     row.quality_score = body.quality_score
     row.source_url = body.source_url
+    row.source_site = body.source_site or "xhs"
+    row.theme_key = body.theme_key
     row.license_ok = False
     row.notes = body.notes
     row.collected_at = datetime.utcnow()

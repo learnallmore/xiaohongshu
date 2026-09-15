@@ -127,8 +127,16 @@
             .join("") + `<span class="index-label">${cursor + 1}/${posts.length}</span>`;
 
         const tastePass = post.taste_pass ? "过线" : "未过线";
-        aiBody.innerHTML = `<p>领域：${escapeHtml(post.domain_label || post.domain)} · niche ${post.niche_score} · taste ${post.taste_score ?? "—"}（${tastePass}） · 状态 ${post.status}</p>
-          <p>${escapeHtml(post.rationale || "（无 rationale）")}</p>`;
+        const feat = post.taste_features || {};
+        const failBits = (feat.fail_reasons || []).slice(0, 3).map((r) => escapeHtml(r)).join("；");
+        const matBits = (feat.material_sample || [])
+          .slice(0, 2)
+          .map((m) => escapeHtml((m.title || m.note_id || "").slice(0, 24)))
+          .join(" / ");
+        aiBody.innerHTML = `<p>领域：${escapeHtml(post.domain_label || post.domain)} · niche ${post.niche_score} · taste ${post.taste_score ?? "—"}（${tastePass}${feat.benchmark != null ? ` / 门槛 ${feat.benchmark}` : ""}） · 状态 ${post.status}</p>
+          <p>${escapeHtml(post.rationale || "（无 rationale）")}</p>
+          ${matBits ? `<p class="muted">对照素材：${matBits}</p>` : ""}
+          ${failBits ? `<p class="muted">未过线原因：${failBits}</p>` : ""}`;
 
         const cover =
           images.find((x) => x.sort_order === post.cover_index) || images[0];
@@ -210,6 +218,16 @@
             return;
           }
           const updated = await res.json();
+          if (action === "reject" && updated.deleted) {
+            posts.splice(cursor, 1);
+            if (cursor >= posts.length) cursor = Math.max(0, posts.length - 1);
+            flashEl.textContent = "已删除并拉黑该主题";
+            render();
+            setTimeout(() => {
+              flashEl.textContent = "";
+            }, 1200);
+            return;
+          }
           posts[cursor] = updated;
           const label =
             action === "publish"

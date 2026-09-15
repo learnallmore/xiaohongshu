@@ -13,6 +13,8 @@ from app.db import get_db
 from app.models import CandidatePost
 from app.schemas import ReviewBody, candidate_to_out
 from app.seed import list_today_candidates
+from app.services.reject_store import hard_delete_candidate
+from app.services.candidate_ingest import ingest_candidate_items
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -59,13 +61,46 @@ def review_action(
                 ),
             )
         post.status = "published"
-    elif body.action == "draft":
-        post.status = "draft"
-    else:
-        post.status = "rejected"
-        post.reject_reason = body.reject_reason or "rejected"
+        post.reviewed_at = datetime.utcnow()
+        db.commit()
+        db.refresh(post)
+        return candidate_to_out(post)
 
-    post.reviewed_at = datetime.utcnow()
-    db.commit()
-    db.refresh(post)
-    return candidate_to_out(post)
+    if body.action == "draft":
+        post.status = "draft"
+        post.reviewed_at = datetime.utcnow()
+        db.commit()
+        db.refresh(post)
+        return candidate_to_out(post)
+
+    # reject → 永久删除 + 指纹
+    snapshot = candidate_to_out(post)
+    hard_delete_candidate(
+        db,
+        post,
+        reason=body.reject_reason or "user_rejected",
+    )
+    return {
+        "deleted": True,
+        "id": snapshot.id,
+        "theme_key": snapshot.theme_key,
+        "title": snapshot.title,
+    }
+
+
+@router.post("/api/jobs/ingest-candidates")
+def api_ingest_candidates(body: dict, db: Session = Depends(get_db)):
+    """Cursor Agent / 人工提交今日 3 条候选 JSON 落库（不调外部 LLM）。"""
+    items = body.get("candidates") if isinstance(body, dict) else None
+    if items is None and isinstance(body, list):
+        items = body
+    if not isinstance(items, list):
+        raise HTTPException(status_code=400, detail="body 须含 candidates 数组")
+    result = ingest_candidate_items(db, items)
+    if not result.ok:
+        raise HTTPException(status_code=400, detail=result.message)
+    return {
+        "ok": True,
+        "message": result.message,
+        "post_ids": result.post_ids,
+    }

@@ -30,6 +30,7 @@ class CandidateOut(BaseModel):
     taste_score: int
     taste_pass: bool
     taste_features: dict | None = None
+    theme_key: str | None = None
     images: list[ImageOut]
 
 
@@ -42,13 +43,21 @@ class MaterialIn(BaseModel):
     id: str | None = None
     domain: str
     keyword: str
+    note_id: str | None = None
     title_observed: str
     author_hint: str | None = None
     likes_hint: int | None = None
-    structure_notes: str
+    collects_hint: int | None = None
+    comments_hint: int | None = None
+    cover_url: str | None = None
+    images: list[str] = Field(default_factory=list)
+    body_excerpt: str | None = None
+    structure_notes: str | None = None  # 策展备注，可选
     taste_tags: list[str] = Field(default_factory=list)
     quality_score: int = Field(ge=0, le=100, default=75)
     source_url: str | None = None
+    source_site: str | None = "xhs"
+    theme_key: str | None = None
     notes: str | None = None
 
 
@@ -56,13 +65,21 @@ class MaterialOut(BaseModel):
     id: str
     domain: str
     keyword: str
+    note_id: str | None = None
     title_observed: str
     author_hint: str | None
     likes_hint: int | None
+    collects_hint: int | None = None
+    comments_hint: int | None = None
+    cover_url: str | None = None
+    images: list[str] = Field(default_factory=list)
+    body_excerpt: str | None = None
     structure_notes: str
     taste_tags: list[str]
     quality_score: int
     source_url: str | None
+    source_site: str | None = None
+    theme_key: str | None = None
     license_ok: bool
     notes: str | None
     collected_at: datetime | None = None
@@ -103,6 +120,7 @@ def candidate_to_out(post) -> CandidateOut:
         taste_features=features_from_json(
             getattr(post, "taste_features_json", None)
         ),
+        theme_key=getattr(post, "theme_key", None),
         images=[
             ImageOut(
                 id=img.id,
@@ -119,17 +137,37 @@ def candidate_to_out(post) -> CandidateOut:
 
 
 def material_to_out(row) -> MaterialOut:
+    images: list[str] = []
+    raw_imgs = getattr(row, "images_json", None)
+    if raw_imgs:
+        try:
+            data = json.loads(raw_imgs)
+            if isinstance(data, list):
+                images = [str(x) for x in data]
+        except json.JSONDecodeError:
+            images = []
+    cover = getattr(row, "cover_url", None)
+    if cover and cover not in images:
+        images = [cover] + images
     return MaterialOut(
         id=row.id,
         domain=row.domain,
         keyword=row.keyword,
+        note_id=getattr(row, "note_id", None),
         title_observed=row.title_observed,
         author_hint=row.author_hint,
         likes_hint=row.likes_hint,
-        structure_notes=row.structure_notes,
+        collects_hint=getattr(row, "collects_hint", None),
+        comments_hint=getattr(row, "comments_hint", None),
+        cover_url=cover,
+        images=images,
+        body_excerpt=getattr(row, "body_excerpt", None),
+        structure_notes=row.structure_notes or "",
         taste_tags=tags_from_json(row.taste_tags_json),
         quality_score=row.quality_score,
         source_url=row.source_url,
+        source_site=getattr(row, "source_site", None),
+        theme_key=getattr(row, "theme_key", None),
         license_ok=row.license_ok,
         notes=row.notes,
         collected_at=row.collected_at,

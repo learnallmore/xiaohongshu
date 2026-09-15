@@ -25,6 +25,7 @@ class CandidatePost(Base):
     taste_score: Mapped[int] = mapped_column(Integer, default=0)
     taste_pass: Mapped[bool] = mapped_column(Boolean, default=False)
     taste_features_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    theme_key: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     reject_reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now()
@@ -57,22 +58,45 @@ class PostImage(Base):
 
 
 class ReferenceMaterial(Base):
-    """调研参照素材：只存结构/审美特征，禁止未授权原文原图。"""
+    """素材库：小红书真实优质笔记的可核验公开元数据（非假结构参照）。"""
 
     __tablename__ = "reference_materials"
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     domain: Mapped[str] = mapped_column(String(32), index=True)
     keyword: Mapped[str] = mapped_column(String(128))
+    note_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     title_observed: Mapped[str] = mapped_column(String(300))
     author_hint: Mapped[str | None] = mapped_column(String(128), nullable=True)
     likes_hint: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    structure_notes: Mapped[str] = mapped_column(Text)
+    collects_hint: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    comments_hint: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    cover_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    images_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    body_excerpt: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # 兼容旧列：策展备注（非「结构参照假帖」正文）
+    structure_notes: Mapped[str] = mapped_column(Text, default="")
     taste_tags_json: Mapped[str] = mapped_column(Text)  # JSON array
     quality_score: Mapped[int] = mapped_column(Integer, default=70)
     source_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    source_site: Mapped[str | None] = mapped_column(String(32), nullable=True, index=True)
+    theme_key: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     license_ok: Mapped[bool] = mapped_column(Boolean, default=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     collected_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now()
+    )
+
+
+class RejectedFingerprint(Base):
+    """拒绝过的主题/标题指纹：日更生成永久跳过。"""
+
+    __tablename__ = "rejected_fingerprints"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    kind: Mapped[str] = mapped_column(String(32), index=True)  # theme_key|title_hash|note_id
+    value: Mapped[str] = mapped_column(String(255), index=True)
+    reason: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now()
     )

@@ -42,3 +42,14 @@ specs/
 
 - 每次改码强制 `auto-code-review`
 - 禁止自动 push；密钥不上库
+
+## 质量门禁
+
+- 每次改码强制 `auto-code-review`
+- 禁止自动 push；密钥不上库
+
+## 日更作业
+
+- 飞书提醒：`.github/workflows/daily-feishu-remind.yml`（Secret：`FEISHU_WEBHOOK_URL`）
+- Agent 落库：`python -m app.jobs.ingest_candidates`（读 `data/agent_daily.json`）
+- **已废弃**：外部 LLM `daily_generate` 日更主路径

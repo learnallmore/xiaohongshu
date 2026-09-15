@@ -1,0 +1,39 @@
+name: Daily Feishu remind
+
+# 只发飞书提醒，不生成文案、不调 LLM、不连业务库。
+# 你在飞书收到提醒后，指挥 Cursor Agent 按 Skill「daily-agent-generate」写稿并落库。
+
+on:
+  schedule:
+    # 每天 00:00 UTC ≈ 北京时间 08:00
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install httpx
+        run: pip install "httpx>=0.27.0"
+
+      - name: Send Feishu reminder
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+          FEISHU_REMIND_TEXT: ${{ secrets.FEISHU_REMIND_TEXT }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${FEISHU_WEBHOOK_URL:-}" ]]; then
+            echo "Missing secret FEISHU_WEBHOOK_URL"
+            echo "飞书群 → 设置 → 群机器人 → 自定义机器人 → 复制 Webhook 地址到 GitHub Secrets"
+            exit 1
+          fi
+          python -m app.jobs.feishu_remind

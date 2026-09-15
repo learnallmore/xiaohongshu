@@ -23,7 +23,6 @@ description: >-
 - [ ] 标题、正文、标签非空且符合平台限制
 - [ ] 每张图有 `source` + `license`；无未授权转载
 - [ ] Token 有效或已 `refreshAuthIfNeeded`
-- [ ] 非官方 Cookie/逆向路径 **未** 出现在代码中
 - [ ] 失败时返回可读 `errorCode`（如 `PUBLISH_SCOPE_MISSING`）
 - [ ] 成功后写入 `externalNoteId` 并入指标队列
 
