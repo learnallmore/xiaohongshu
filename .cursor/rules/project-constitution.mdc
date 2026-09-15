@@ -13,6 +13,4 @@ alwaysApply: true
 - **禁止擅自装环境**：不得擅自 `brew install`、装/启 Docker、`docker compose`、装 `gh`、系统级 `pip`/`mvn` 依赖安装、Flyway migrate 或连接真实数据库做迁移；仅当用户明确说进入「环境安装阶段」时才可执行。
 - 数据库选型为 **MySQL**（见 `specs/006-tech-stack.md`）；写码阶段用 Mock，不强制起库。
 - 栈：**FastAPI 运营台 + Spring Boot 后端 + 本机 MySQL**（见 `specs/006-tech-stack.md`）；仅本地部署。
-- 小红书账号连接未知则搁置；默认 Noop Publisher。
-- 当前为 **Phase 2：方案 + 写码**；行为变更须同步 Spec。
 - 保持改动最小、与 Spec 一致；不主动写用户未要求的文档。
